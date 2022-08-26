@@ -19,7 +19,7 @@ void main() {
   });
   test('Stream', () {
     final cache = Cachette<int, String>(3, evictionPolicy: EvictionPolicy.fifo);
-    expectLater(cache.evictionStream, emitsInOrder([0, 1]));
+    expectLater(cache.evictionStream.map((e) => e.key), emitsInOrder([0, 1]));
     for (int i = 0; i < 5; i++) {
       cache.add(i, i.toString());
     }
