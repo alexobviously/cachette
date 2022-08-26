@@ -2,6 +2,7 @@ enum EvictionPolicy {
   dontEvict,
   firstIn,
   lastIn,
+  random,
   leastRecentlyUsed,
   leastFrequentlyUsed,
 }

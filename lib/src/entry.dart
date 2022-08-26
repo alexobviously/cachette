@@ -18,4 +18,8 @@ class CacheEntry<K, V> extends EntryInfo<K> {
         lastAccess: info.lastAccess,
         numUses: info.numUses,
       );
+
+  @override
+  String toString() =>
+      'CacheEntry($key, $value, uses: $numUses, lastAccess: $lastAccess, added: $added)';
 }

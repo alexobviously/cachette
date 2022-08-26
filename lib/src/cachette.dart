@@ -5,8 +5,8 @@ class Cachette<K, V extends Object> {
   final EvictionPolicy evictionPolicy;
   final ConflictPolicy conflictPolicy;
 
-  Cachette({
-    this.size = 100,
+  Cachette(
+    this.size, {
     this.evictionPolicy = EvictionPolicy.leastRecentlyUsed,
     this.conflictPolicy = ConflictPolicy.overwrite,
   });
@@ -15,8 +15,13 @@ class Cachette<K, V extends Object> {
   final Map<K, EntryInfo<K>> _registry = {};
 
   int get length => _items.length;
+  Iterable<K> get keys => _items.keys;
+  Iterable<V> get values => _items.values;
+  Iterable<CacheEntry<K, V>> get entries =>
+      _registry.values.map((e) => CacheEntry.build(_items[e.key]!, e));
 
   V? operator [](K key) => get(key).object?.value;
+  void operator []=(K key, V value) => add(key, value);
 
   Result<CacheEntry<K, V>, CachetteError> get(K key) {
     if (!_items.containsKey(key)) {
@@ -75,7 +80,7 @@ class Cachette<K, V extends Object> {
 
   Result<int, CachetteError> clean([int? sizeLimit]) {
     sizeLimit ??= size;
-    int toEvict = sizeLimit - length;
+    int toEvict = length - sizeLimit;
     if (toEvict < 1) {
       return Result.ok(0);
     }
@@ -99,6 +104,7 @@ class Cachette<K, V extends Object> {
   late final Map<EvictionPolicy, GatherFunction<K>> _gatherers = {
     EvictionPolicy.firstIn: _gatherFirst,
     EvictionPolicy.lastIn: _gatherLast,
+    EvictionPolicy.random: _gatherRandom,
     EvictionPolicy.leastFrequentlyUsed: _gatherLfu,
     EvictionPolicy.leastRecentlyUsed: _gatherLru,
   };
@@ -109,6 +115,8 @@ class Cachette<K, V extends Object> {
   List<K> _gatherFirst(int num) => _items.keys.take(num).toList();
   List<K> _gatherLast(int num) =>
       _items.keys.toList().reversed.take(num).toList();
+  List<K> _gatherRandom(int num) =>
+      (_items.keys.toList()..shuffle()).take(num).toList();
   List<K> _gatherLru(int num) => (_registry.values.toList()
         ..sort((a, b) => a.lastAccess.compareTo(b.lastAccess)))
       .map((e) => e.key)
