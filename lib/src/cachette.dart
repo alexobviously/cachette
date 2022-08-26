@@ -105,8 +105,10 @@ class Cachette<K, V extends Object> {
     EvictionPolicy.fifo: _gatherFirst,
     EvictionPolicy.lifo: _gatherLast,
     EvictionPolicy.random: _gatherRandom,
-    EvictionPolicy.leastFrequentlyUsed: _gatherLfu,
     EvictionPolicy.leastRecentlyUsed: _gatherLru,
+    EvictionPolicy.mostRecentlyUsed: _gatherMru,
+    EvictionPolicy.leastFrequentlyUsed: _gatherLfu,
+    EvictionPolicy.mostFrequentlyUsed: _gatherMfu,
   };
 
   List<K> gather(EvictionPolicy policy, int num) =>
@@ -122,8 +124,18 @@ class Cachette<K, V extends Object> {
       .map((e) => e.key)
       .take(num)
       .toList();
+  List<K> _gatherMru(int num) => (_registry.values.toList()
+        ..sort((a, b) => b.lastAccess.compareTo(a.lastAccess)))
+      .map((e) => e.key)
+      .take(num)
+      .toList();
   List<K> _gatherLfu(int num) => (_registry.values.toList()
         ..sort((a, b) => a.numUses.compareTo(b.numUses)))
+      .map((e) => e.key)
+      .take(num)
+      .toList();
+  List<K> _gatherMfu(int num) => (_registry.values.toList()
+        ..sort((a, b) => b.numUses.compareTo(a.numUses)))
       .map((e) => e.key)
       .take(num)
       .toList();

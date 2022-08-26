@@ -4,7 +4,9 @@ enum EvictionPolicy {
   lifo,
   random,
   leastRecentlyUsed,
+  mostRecentlyUsed,
   leastFrequentlyUsed,
+  mostFrequentlyUsed,
 }
 
 enum ConflictPolicy {
