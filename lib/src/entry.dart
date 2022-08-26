@@ -1,6 +1,8 @@
 import 'package:cachette/cachette.dart';
 
+/// A cache entry, containing a [key], [value] and some metadata.
 class CacheEntry<K, V> extends EntryInfo<K> {
+  /// The value of the entry.
   final V value;
 
   const CacheEntry({

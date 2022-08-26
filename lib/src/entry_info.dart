@@ -1,7 +1,15 @@
+/// Used internally to hold cache entry metadata within Cachette.
 class EntryInfo<K> {
+  /// The key of the entry.
   final K key;
+
+  /// When the entry was first added to the cache.
   final DateTime added;
+
+  /// When the entry was last read.
   final DateTime lastAccess;
+
+  /// The number of times the entry has been read.
   final int numUses;
 
   const EntryInfo({

@@ -1,3 +1,5 @@
+/// Policies that can be used to determine which entries are evicted as the
+/// cache size limit is reached.
 enum EvictionPolicy {
   dontEvict,
   fifo,
@@ -9,10 +11,12 @@ enum EvictionPolicy {
   mostFrequentlyUsed,
 }
 
+/// Policies that determine what happens if a key conflict happens.
 enum ConflictPolicy {
   overwrite,
-  fail,
+  error,
   exception,
 }
 
+/// Returns [num] keys.
 typedef GatherFunction<K> = List<K> Function(int num);

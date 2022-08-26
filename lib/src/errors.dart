@@ -1,3 +1,4 @@
+/// Exceptions related to Cachette.
 class CachetteException {
   final String message;
   const CachetteException(this.message);
@@ -5,12 +6,15 @@ class CachetteException {
   String toString() => 'CachetteException($message)';
 }
 
+/// Parent class for Cachette related errors.
 class CachetteError {
   const CachetteError();
   @override
   String toString() => 'CachetteError';
 }
 
+/// Occurs if an attempt is made to add an item to the cache, whose key is
+/// already in use, and the conflict policy is error.
 class KeyConflictError<K> extends CachetteError {
   final K key;
   const KeyConflictError(this.key);
@@ -26,6 +30,7 @@ class KeyConflictError<K> extends CachetteError {
   int get hashCode => key.hashCode;
 }
 
+/// Occurs if the cache is full and the eviction policy is dontEvict.
 class CacheFullError extends CachetteError {
   const CacheFullError();
 
@@ -33,6 +38,7 @@ class CacheFullError extends CachetteError {
   String toString() => 'Cache Full';
 }
 
+/// Occurs if a queried key was not found in the cache.
 class NotFoundError<K> extends CachetteError {
   final K key;
   const NotFoundError(this.key);

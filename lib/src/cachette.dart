@@ -14,7 +14,7 @@ class Cachette<K, V extends Object> {
   final ConflictPolicy conflictPolicy;
 
   /// Will be called each time an item is evicted.
-  final void Function(CacheEntry<K, V> e)? onEvict;
+  final void Function(CacheEntry<K, V> entry)? onEvict;
 
   Cachette(
     this.size, {
@@ -26,9 +26,16 @@ class Cachette<K, V extends Object> {
   final Map<K, V> _items = {};
   final Map<K, EntryInfo<K>> _registry = {};
 
+  /// The current number of items in the cache.
   int get length => _items.length;
+
+  /// All of the keys in the cache.
   Iterable<K> get keys => _items.keys;
+
+  /// All of the values in the cache.
   Iterable<V> get values => _items.values;
+
+  /// All items in the cache, in `CacheEntry` form.
   Iterable<CacheEntry<K, V>> get entries =>
       _registry.values.map((e) => CacheEntry.build(_items[e.key]!, e));
 
@@ -42,6 +49,7 @@ class Cachette<K, V extends Object> {
   V? operator [](K key) => get(key).object?.value;
   void operator []=(K key, V value) => add(key, value);
 
+  /// Gets a cache item with [key].
   Result<CacheEntry<K, V>, CachetteError> get(K key) {
     if (!_items.containsKey(key)) {
       return Result.error(NotFoundError(key));
@@ -52,6 +60,8 @@ class Cachette<K, V extends Object> {
     return Result.ok(CacheEntry.build(item, info));
   }
 
+  /// Adds a cache item with [key] and [value].
+  /// Use [conflictPolicy] to override the Cachette's conflict policy.
   Result<CacheEntry<K, V>, CachetteError> add(
     K key,
     V value, {
@@ -62,14 +72,14 @@ class Cachette<K, V extends Object> {
       switch (conflictPolicy) {
         case ConflictPolicy.overwrite:
           break;
-        case ConflictPolicy.fail:
+        case ConflictPolicy.error:
           return Result.error(KeyConflictError(key));
         case ConflictPolicy.exception:
           throw CachetteException('Conflicting key: $key');
       }
     }
 
-    final cleanRes = clean(size - 1);
+    final cleanRes = clean(sizeLimit: size - 1);
     if (!cleanRes.ok) {
       return Result.error(cleanRes.error!);
     }
@@ -80,6 +90,7 @@ class Cachette<K, V extends Object> {
     return Result.ok(CacheEntry.build(value, _registry[key]!));
   }
 
+  /// Removes an item with [key] from the cache.
   Result<CacheEntry<K, V>, CachetteError> remove(
     K key, {
     bool callOnEvict = false,
@@ -94,23 +105,29 @@ class Cachette<K, V extends Object> {
     return Result.ok(result.object!);
   }
 
+  /// Removes all items from the cache.
   void clear() {
     _items.clear();
     _registry.clear();
   }
 
-  Result<int, CachetteError> clean([int? sizeLimit]) {
+  /// Cleans the cache, i.e. removes enough cache items to meet [sizeLimit].
+  /// If [sizeLimit] isn't provided, the [size] of the Cachette is used, which
+  /// is the most likely use case.
+  /// [policy] can be used to override the Cachette's eviction policy.
+  Result<int, CachetteError> clean({int? sizeLimit, EvictionPolicy? policy}) {
     sizeLimit ??= size;
+    policy ??= evictionPolicy;
     int toEvict = length - sizeLimit;
     if (toEvict < 1) {
       return Result.ok(0);
     }
 
-    if (evictionPolicy == EvictionPolicy.dontEvict) {
+    if (policy == EvictionPolicy.dontEvict) {
       return Result.error(CacheFullError());
     }
 
-    List<K> keys = gather(evictionPolicy, toEvict);
+    List<K> keys = gather(policy, toEvict);
     return _evictMany(keys);
   }
 
@@ -152,6 +169,7 @@ class Cachette<K, V extends Object> {
     EvictionPolicy.mostFrequentlyUsed: _gatherMfu,
   };
 
+  /// Retries up to [num] items to be evicted according to [policy].
   List<K> gather(EvictionPolicy policy, int num) =>
       _gatherers[policy]?.call(num) ?? [];
 
