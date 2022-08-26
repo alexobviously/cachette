@@ -9,9 +9,11 @@ void main() {
       for (int i = 0; i < 50; i++) {
         cache[i] = i.toString();
       }
+      cache.remove(42);
       expect(cache[5], '5');
       expect(cache[27], '27');
       expect(cache[55], null);
+      expect(cache[42], null);
     });
   });
 }

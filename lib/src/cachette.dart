@@ -1,14 +1,26 @@
+import 'dart:async';
+
 import 'package:cachette/cachette.dart';
 
+/// A simple in-memory cache.
 class Cachette<K, V extends Object> {
+  /// The maximum number of items the cache can hold.
   final int size;
+
+  /// Used to determine which items to evict when the cache becomes full.
   final EvictionPolicy evictionPolicy;
+
+  /// Used to determine what should be done in the case of a key conflict.
   final ConflictPolicy conflictPolicy;
+
+  /// Will be called each time an item is evicted.
+  final void Function(CacheEntry<K, V> e)? onEvict;
 
   Cachette(
     this.size, {
     this.evictionPolicy = EvictionPolicy.leastRecentlyUsed,
     this.conflictPolicy = ConflictPolicy.overwrite,
+    this.onEvict,
   });
 
   final Map<K, V> _items = {};
@@ -19,6 +31,13 @@ class Cachette<K, V extends Object> {
   Iterable<V> get values => _items.values;
   Iterable<CacheEntry<K, V>> get entries =>
       _registry.values.map((e) => CacheEntry.build(_items[e.key]!, e));
+
+  final StreamController<CacheEntry<K, V>> _evictionStreamController =
+      StreamController.broadcast();
+
+  /// A stream of evicted cache entries.
+  Stream<CacheEntry<K, V>> get evictionStream =>
+      _evictionStreamController.stream;
 
   V? operator [](K key) => get(key).object?.value;
   void operator []=(K key, V value) => add(key, value);
@@ -61,16 +80,18 @@ class Cachette<K, V extends Object> {
     return Result.ok(CacheEntry.build(value, _registry[key]!));
   }
 
-  Result<CacheEntry<K, V>, CachetteError> remove(K key) {
+  Result<CacheEntry<K, V>, CachetteError> remove(
+    K key, {
+    bool callOnEvict = false,
+  }) {
     if (!_items.containsKey(key)) {
       return Result.error(NotFoundError(key));
     }
-    final entry = CacheEntry.build(_items[key]!, _registry[key]!);
-    final result = _evict([key]);
+    final result = _evict(key, callOnEvict: callOnEvict);
     if (!result.ok) {
       return Result.error(result.error!);
     }
-    return Result.ok(entry);
+    return Result.ok(result.object!);
   }
 
   void clear() {
@@ -90,15 +111,35 @@ class Cachette<K, V extends Object> {
     }
 
     List<K> keys = gather(evictionPolicy, toEvict);
-    return _evict(keys);
+    return _evictMany(keys);
   }
 
-  Result<int, CachetteError> _evict(List<K> keys) {
+  Result<int, CachetteError> _evictMany(
+    List<K> keys, {
+    bool callOnEvict = true,
+  }) {
     for (K k in keys) {
-      _items.remove(k);
-      _registry.remove(k);
+      final res = _evict(k, callOnEvict: callOnEvict);
+      if (!res.ok) {
+        return Result.error(res.error!);
+      }
     }
     return Result.ok(keys.length);
+  }
+
+  Result<CacheEntry<K, V>, CachetteError> _evict(K key,
+      {bool callOnEvict = true}) {
+    if (!_items.containsKey(key)) {
+      return Result.error(NotFoundError(key));
+    }
+    final entry = CacheEntry.build(_items[key]!, _registry[key]!);
+    if (callOnEvict) {
+      onEvict?.call(entry);
+      _evictionStreamController.add(entry);
+    }
+    _items.remove(key);
+    _registry.remove(key);
+    return Result.ok(entry);
   }
 
   late final Map<EvictionPolicy, GatherFunction<K>> _gatherers = {
@@ -140,5 +181,3 @@ class Cachette<K, V extends Object> {
       .take(num)
       .toList();
 }
-
-typedef GatherFunction<K> = List<K> Function(int num);

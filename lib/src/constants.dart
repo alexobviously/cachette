@@ -14,3 +14,5 @@ enum ConflictPolicy {
   fail,
   exception,
 }
+
+typedef GatherFunction<K> = List<K> Function(int num);
