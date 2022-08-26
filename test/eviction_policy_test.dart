@@ -6,7 +6,7 @@ void main() {
   group('Eviction Policy Tests', () {
     test('First In', () {
       final cache =
-          Cachette<int, String>(3, evictionPolicy: EvictionPolicy.firstIn);
+          Cachette<int, String>(3, evictionPolicy: EvictionPolicy.fifo);
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
       }
@@ -14,7 +14,7 @@ void main() {
     });
     test('Last In', () {
       final cache =
-          Cachette<int, String>(3, evictionPolicy: EvictionPolicy.lastIn);
+          Cachette<int, String>(3, evictionPolicy: EvictionPolicy.lifo);
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
       }

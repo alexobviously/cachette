@@ -102,8 +102,8 @@ class Cachette<K, V extends Object> {
   }
 
   late final Map<EvictionPolicy, GatherFunction<K>> _gatherers = {
-    EvictionPolicy.firstIn: _gatherFirst,
-    EvictionPolicy.lastIn: _gatherLast,
+    EvictionPolicy.fifo: _gatherFirst,
+    EvictionPolicy.lifo: _gatherLast,
     EvictionPolicy.random: _gatherRandom,
     EvictionPolicy.leastFrequentlyUsed: _gatherLfu,
     EvictionPolicy.leastRecentlyUsed: _gatherLru,
