@@ -1,6 +1,6 @@
 name: cachette
 description: A simple and in-memory cache, designed to fulfil the most basic use cases in an elegant way.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/alexobviously/cachette
 
 environment:
