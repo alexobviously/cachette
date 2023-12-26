@@ -77,10 +77,10 @@ packages:
     dependency: "direct main"
     description:
       name: elegant
-      sha256: "4359585c6426b92b7552ce085e18beaeb93f1d6ec4860fddc2d5343a11fd904c"
+      sha256: cb2b7e03928a4cf7bf9ccc94f41be6b44854170c4a8c9a44dcc7a803c5fbf9ec
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   file:
     dependency: transitive
     description:

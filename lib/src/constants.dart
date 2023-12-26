@@ -8,7 +8,7 @@ enum EvictionPolicy {
   leastRecentlyUsed,
   mostRecentlyUsed,
   leastFrequentlyUsed,
-  mostFrequentlyUsed,
+  mostFrequentlyUsed;
 }
 
 /// Policies that determine what happens if a key conflict happens.
@@ -16,6 +16,7 @@ enum ConflictPolicy {
   overwrite,
   error,
   exception,
+  users;
 }
 
 /// Returns [num] keys.
