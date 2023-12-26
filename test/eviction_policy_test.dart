@@ -23,8 +23,10 @@ void main() {
       expect(cache.keys, [0, 1, 4]);
     });
     test('Least Recently Used', () {
-      final cache = Cachette<int, String>(5,
-          evictionPolicy: EvictionPolicy.leastRecentlyUsed);
+      final cache = Cachette<int, String>(
+        5,
+        evictionPolicy: EvictionPolicy.leastRecentlyUsed,
+      );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
       }
@@ -35,8 +37,10 @@ void main() {
       expect(cache.keys, [0, 3, 4, 5, 6]);
     });
     test('Most Recently Used', () {
-      final cache = Cachette<int, String>(5,
-          evictionPolicy: EvictionPolicy.mostRecentlyUsed);
+      final cache = Cachette<int, String>(
+        5,
+        evictionPolicy: EvictionPolicy.mostRecentlyUsed,
+      );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
       }
@@ -48,8 +52,10 @@ void main() {
       expect(cache.keys, [0, 1, 2, 4, 6]);
     });
     test('Least Frequently Used', () {
-      final cache = Cachette<int, String>(5,
-          evictionPolicy: EvictionPolicy.leastFrequentlyUsed);
+      final cache = Cachette<int, String>(
+        5,
+        evictionPolicy: EvictionPolicy.leastFrequentlyUsed,
+      );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
         for (int j = 0; j < 5 - i; j++) {
@@ -65,8 +71,10 @@ void main() {
       expect(cache.keys, [0, 1, 2, 6, 7]);
     });
     test('Most Frequently Used', () {
-      final cache = Cachette<int, String>(5,
-          evictionPolicy: EvictionPolicy.mostFrequentlyUsed);
+      final cache = Cachette<int, String>(
+        5,
+        evictionPolicy: EvictionPolicy.mostFrequentlyUsed,
+      );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
         for (int j = 0; j < 5 - i; j++) {

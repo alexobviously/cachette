@@ -36,6 +36,12 @@ class CacheFullError extends CachetteError {
 
   @override
   String toString() => 'Cache Full';
+
+  @override
+  bool operator ==(Object other) => other is CacheFullError;
+
+  @override
+  int get hashCode => 0;
 }
 
 /// Occurs if a queried key was not found in the cache.
