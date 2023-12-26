@@ -12,6 +12,7 @@ class EntryInfo<K, U extends Object> {
   /// The number of times the entry has been read.
   final int numUses;
 
+  /// Users that are currently registered to this entry.
   final Set<U> users;
 
   const EntryInfo({
@@ -32,6 +33,7 @@ class EntryInfo<K, U extends Object> {
     );
   }
 
+  /// Creates a copy of this entry with some values changed.
   EntryInfo<K, U> copyWith({
     K? key,
     DateTime? added,
@@ -47,14 +49,17 @@ class EntryInfo<K, U extends Object> {
         users: users ?? this.users,
       );
 
+  /// Sets `lastAccess` to now and increments `numUses`.
   EntryInfo<K, U> update() =>
       copyWith(lastAccess: DateTime.now(), numUses: numUses + 1);
 
+  /// Adds [users] to the entry's user list.
   EntryInfo<K, U> addUsers(Set<U> users) => copyWith(
         users: {...this.users, ...users},
         lastAccess: DateTime.now(),
       );
 
+  /// Removes [users] from the entry's user list.
   EntryInfo<K, U> removeUsers(Set<U> users) => copyWith(
         users: {...this.users}..removeAll(users),
       );

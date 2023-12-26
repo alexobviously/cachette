@@ -7,6 +7,7 @@ Cachette is a very simple cache tool designed to fulfil the most basic use cases
 * Stores and retrieves key-value pairs in memory.
 * Evicts excess values depending on the eviction policy. It currently supports *first in, first out* (FIFO), *last in, first out* (LIFO), *random eviction*, *least recently used* (LRU), *most recently used* (MRU), *least frequently used* (LFU), and *most frequently used* (MFU).
 * Provides an elegant interface including streams and callbacks.
+* Supports a 'user' model of cache entry ownership.
 * Exposes lists of keys, values and entries, which can be queried with functions such as `where`.
 * Doesn't require any `await` calls.
 

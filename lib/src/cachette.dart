@@ -89,6 +89,9 @@ class CachetteBase<K, V extends Object, U extends Object> {
 
   /// Adds a cache item with [key] and [value].
   /// Use [conflictPolicy] to override the Cachette's conflict policy.
+  /// If [user] or [users] are provided, they will be added to the cache item.
+  /// Note that in order to use users, `ConflictPolicy.users` must be used.
+  /// Try saying the previous sentence out loud quickly.
   Result<CacheEntry<K, V, U>, CachetteError> add(
     K key,
     V value, {
