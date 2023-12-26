@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cachette/cachette.dart';
+import 'package:elegant/elegant.dart';
 
 /// A simple in-memory cache.
 class Cachette<K, V extends Object> {
