@@ -127,6 +127,22 @@ class CachetteBase<K, V extends Object, U extends Object> {
     return Result.ok(CacheEntry.build(value, _registry[key]!));
   }
 
+  /// Adds [user] to the cache item with [key].
+  /// Only works if the cache item already exists.
+  Result<CacheEntry<K, V, U>, CachetteError> addUser(K key, U user) =>
+      addUsers(key, {user});
+
+  /// Adds [users] to the cache item with [key].
+  /// Only works if the cache item already exists.
+  Result<CacheEntry<K, V, U>, CachetteError> addUsers(K key, Set<U> users) {
+    if (!_items.containsKey(key)) {
+      return Result.error(NotFoundError(key));
+    }
+    final info = _registry[key]!.addUsers(users);
+    _registry[key] = info;
+    return Result.ok(CacheEntry.build(_items[key]!, info));
+  }
+
   /// Removes a single [user] from thee cache item with [key].
   /// If [removeIfUnused] and the item has no users after removing [user],
   /// it will be removed from the cache.

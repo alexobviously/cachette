@@ -14,10 +14,14 @@ void main() {
       final cache = UserCachette<int, String, _TestUser>(5);
       cache.add(0, '0', user: _TestUser.foo);
       cache.add(0, '0', user: _TestUser.bar);
-      expect(cache.getUsers(0).unwrap(), {_TestUser.foo, _TestUser.bar});
-      cache.removeUser(0, _TestUser.foo);
-      expect(cache.getUsers(0).unwrap(), {_TestUser.bar});
-      cache.removeUser(0, _TestUser.bar);
+      cache.addUser(0, _TestUser.baz);
+      expect(
+        cache.getUsers(0).unwrap(),
+        {_TestUser.foo, _TestUser.bar, _TestUser.baz},
+      );
+      cache.removeUsers(0, {_TestUser.foo, _TestUser.bar});
+      expect(cache.getUsers(0).unwrap(), {_TestUser.baz});
+      cache.removeUser(0, _TestUser.baz);
       expect(cache.get(0).error, isA<NotFoundError>());
     });
 
