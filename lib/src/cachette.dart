@@ -80,6 +80,9 @@ class CachetteBase<K, V extends Object, U extends Object> {
     return Result.ok(CacheEntry.build(item, info));
   }
 
+  /// Whether the cache contains an item with [key].
+  bool containsKey(K key) => _items.containsKey(key);
+
   /// Gets the list of all users registered to the cache item with [key].
   Result<Set<U>, CachetteError> getUsers(K key) =>
       (get(key)).transformOk<Set<U>>((e) => e!.users);
