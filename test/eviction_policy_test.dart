@@ -9,7 +9,7 @@ void main() {
     test('First In', () {
       final cache = Cachette<int, String>(
         3,
-        evictionPolicy: EvictionPolicy.fifo,
+        evictionPolicy: .fifo,
       );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
@@ -19,7 +19,7 @@ void main() {
     test('Last In', () {
       final cache = Cachette<int, String>(
         3,
-        evictionPolicy: EvictionPolicy.lifo,
+        evictionPolicy: .lifo,
       );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
@@ -29,7 +29,7 @@ void main() {
     test('Least Recently Used', () {
       final cache = Cachette<int, String>(
         5,
-        evictionPolicy: EvictionPolicy.leastRecentlyUsed,
+        evictionPolicy: .leastRecentlyUsed,
       );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
@@ -43,7 +43,7 @@ void main() {
     test('Most Recently Used', () {
       final cache = Cachette<int, String>(
         5,
-        evictionPolicy: EvictionPolicy.mostRecentlyUsed,
+        evictionPolicy: .mostRecentlyUsed,
       );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
@@ -58,7 +58,7 @@ void main() {
     test('Least Frequently Used', () {
       final cache = Cachette<int, String>(
         5,
-        evictionPolicy: EvictionPolicy.leastFrequentlyUsed,
+        evictionPolicy: .leastFrequentlyUsed,
       );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
@@ -77,7 +77,7 @@ void main() {
     test('Most Frequently Used', () {
       final cache = Cachette<int, String>(
         5,
-        evictionPolicy: EvictionPolicy.mostFrequentlyUsed,
+        evictionPolicy: .mostFrequentlyUsed,
       );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
@@ -97,7 +97,7 @@ void main() {
     test('Don\'t Evict', () {
       final cache = Cachette<int, String>(
         3,
-        evictionPolicy: EvictionPolicy.dontEvict,
+        evictionPolicy: .dontEvict,
       );
       cache[0] = 'zero';
       cache[1] = 'one';

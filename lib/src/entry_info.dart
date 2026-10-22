@@ -1,35 +1,27 @@
 /// Used internally to hold cache entry metadata within Cachette.
-class EntryInfo<K, U extends Object> {
+class const EntryInfo<K, U extends Object>({
   /// The key of the entry.
-  final K key;
+  required final K key,
 
   /// When the entry was first added to the cache.
-  final DateTime added;
+  required final DateTime added,
 
   /// When the entry was last read.
-  final DateTime lastAccess;
+  required final DateTime lastAccess,
 
   /// The number of times the entry has been read.
-  final int numUses;
+  final int numUses = 0,
 
   /// Users that are currently registered to this entry.
-  final Set<U> users;
-
-  const EntryInfo({
-    required this.key,
-    required this.added,
-    required this.lastAccess,
-    this.numUses = 0,
-    this.users = const {},
-  });
-
-  factory EntryInfo.create(K key, [Set<U>? users]) {
-    final now = DateTime.now();
+  final Set<U> users = const {},
+}) {
+  factory create(K key, [Set<U>? users]) {
+    final DateTime now = .now();
     return EntryInfo(
       key: key,
       added: now,
       lastAccess: now,
-      users: {...users ?? {}},
+      users: {...?users},
     );
   }
 
@@ -50,12 +42,12 @@ class EntryInfo<K, U extends Object> {
 
   /// Sets `lastAccess` to now and increments `numUses`.
   EntryInfo<K, U> update() =>
-      copyWith(lastAccess: DateTime.now(), numUses: numUses + 1);
+      copyWith(lastAccess: .now(), numUses: numUses + 1);
 
   /// Adds [users] to the entry's user list.
   EntryInfo<K, U> addUsers(Set<U> users) => copyWith(
     users: {...this.users, ...users},
-    lastAccess: DateTime.now(),
+    lastAccess: .now(),
   );
 
   /// Removes [users] from the entry's user list.

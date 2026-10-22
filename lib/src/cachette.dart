@@ -7,42 +7,33 @@ import 'package:elegant/elegant.dart';
 typedef Cachette<K, V extends Object> = CachetteBase<K, V, Object>;
 
 /// A Cachette that allows you to establish user type bounds.
-class UserCachette<K, V extends Object, U extends Object>
-    extends CachetteBase<K, V, U> {
-  UserCachette(
-    super.size, {
-    super.evictionPolicy = EvictionPolicy.leastRecentlyUsed,
-    super.onEvict,
-    super.unevictableUsers = const {},
-  }) : super(conflictPolicy: ConflictPolicy.users);
+class UserCachette<K, V extends Object, U extends Object>(
+  super.size, {
+  super.evictionPolicy = .leastRecentlyUsed,
+  super.onEvict,
+  super.unevictableUsers = const {},
+}) extends CachetteBase<K, V, U> {
+  this : super(conflictPolicy: .users);
 }
 
 /// The base class for Cachette implementations.
 /// You should probably use `Cachette` or `UserCachette`.
-class CachetteBase<K, V extends Object, U extends Object> {
+class CachetteBase<K, V extends Object, U extends Object>(
   /// The maximum number of items the cache can hold.
-  final int size;
+  final int size, {
 
   /// Used to determine which items to evict when the cache becomes full.
-  final EvictionPolicy evictionPolicy;
+  final EvictionPolicy evictionPolicy = .leastRecentlyUsed,
 
   /// Used to determine what should be done in the case of a key conflict.
-  final ConflictPolicy conflictPolicy;
+  final ConflictPolicy conflictPolicy = .overwrite,
 
   /// Will be called each time an item is evicted.
-  final void Function(CacheEntry<K, V, U> entry)? onEvict;
+  final void Function(CacheEntry<K, V, U> entry)? onEvict,
 
   /// If an entry is used by any of these users, it cannot be evicted.
-  final Set<U> unevictableUsers;
-
-  CachetteBase(
-    this.size, {
-    this.evictionPolicy = EvictionPolicy.leastRecentlyUsed,
-    this.conflictPolicy = ConflictPolicy.overwrite,
-    this.onEvict,
-    this.unevictableUsers = const {},
-  });
-
+  final Set<U> unevictableUsers = const {},
+}) {
   final Map<K, V> _items = {};
   final Map<K, EntryInfo<K, U>> _registry = {};
 
@@ -60,7 +51,7 @@ class CachetteBase<K, V extends Object, U extends Object> {
       _registry.values.map((e) => CacheEntry.build(_items[e.key]!, e));
 
   final StreamController<CacheEntry<K, V, U>> _evictionStreamController =
-      StreamController.broadcast();
+      .broadcast();
 
   /// A stream of evicted cache entries.
   Stream<CacheEntry<K, V, U>> get evictionStream =>
@@ -72,12 +63,12 @@ class CachetteBase<K, V extends Object, U extends Object> {
   /// Gets a cache item with [key].
   Result<CacheEntry<K, V, U>, CachetteError> get(K key) {
     if (!_items.containsKey(key)) {
-      return Result.error(NotFoundError(key));
+      return .error(NotFoundError(key));
     }
     final item = _items[key]!;
     final info = _registry[key]!.update();
     _registry[key] = info;
-    return Result.ok(CacheEntry.build(item, info));
+    return .ok(CacheEntry.build(item, info));
   }
 
   /// Whether the cache contains an item with [key].
@@ -102,19 +93,19 @@ class CachetteBase<K, V extends Object, U extends Object> {
     conflictPolicy ??= this.conflictPolicy;
     if (_items.containsKey(key)) {
       switch (conflictPolicy) {
-        case ConflictPolicy.overwrite:
-        case ConflictPolicy.users:
+        case .overwrite:
+        case .users:
           break;
-        case ConflictPolicy.error:
-          return Result.error(KeyConflictError(key));
-        case ConflictPolicy.exception:
+        case .error:
+          return .error(KeyConflictError(key));
+        case .exception:
           throw CachetteException('Conflicting key: $key');
       }
     }
 
     final cleanRes = clean(sizeLimit: size - 1);
     if (!cleanRes.ok) {
-      return Result.error(cleanRes.error!);
+      return .error(cleanRes.error!);
     }
 
     if (user != null) {
@@ -122,15 +113,15 @@ class CachetteBase<K, V extends Object, U extends Object> {
     }
 
     _registry[key] = switch ((conflictPolicy, users)) {
-      (ConflictPolicy.users, null) => EntryInfo.create(key),
-      (ConflictPolicy.users, Set<U> users) =>
+      (.users, null) => EntryInfo.create(key),
+      (.users, Set<U> users) =>
         _registry[key]?.addUsers(users) ?? EntryInfo.create(key, users),
       _ => EntryInfo.create(key, users),
     };
 
     _items[key] = value;
 
-    return Result.ok(CacheEntry.build(value, _registry[key]!));
+    return .ok(CacheEntry.build(value, _registry[key]!));
   }
 
   /// Adds [user] to the cache item with [key].
@@ -142,11 +133,11 @@ class CachetteBase<K, V extends Object, U extends Object> {
   /// Only works if the cache item already exists.
   Result<CacheEntry<K, V, U>, CachetteError> addUsers(K key, Set<U> users) {
     if (!_items.containsKey(key)) {
-      return Result.error(NotFoundError(key));
+      return .error(NotFoundError(key));
     }
     final info = _registry[key]!.addUsers(users);
     _registry[key] = info;
-    return Result.ok(CacheEntry.build(_items[key]!, info));
+    return .ok(CacheEntry.build(_items[key]!, info));
   }
 
   /// Removes a single [user] from thee cache item with [key].
@@ -174,14 +165,14 @@ class CachetteBase<K, V extends Object, U extends Object> {
     bool callOnEvict = true,
   }) {
     if (!_items.containsKey(key)) {
-      return Result.error(NotFoundError(key));
+      return .error(NotFoundError(key));
     }
     final info = _registry[key]!.removeUsers(users);
     if (info.users.isEmpty && removeIfUnused) {
       return remove(key, callOnEvict: callOnEvict);
     }
     _registry[key] = info;
-    return Result.ok(CacheEntry.build(_items[key]!, info));
+    return .ok(CacheEntry.build(_items[key]!, info));
   }
 
   /// Removes an item with [key] from the cache.
@@ -190,13 +181,13 @@ class CachetteBase<K, V extends Object, U extends Object> {
     bool callOnEvict = false,
   }) {
     if (!_items.containsKey(key)) {
-      return Result.error(NotFoundError(key));
+      return .error(NotFoundError(key));
     }
     final result = _evict(key, callOnEvict: callOnEvict);
     if (!result.ok) {
-      return Result.error(result.error!);
+      return .error(result.error!);
     }
-    return Result.ok(result.object!);
+    return .ok(result.object!);
   }
 
   /// Removes all items from the cache.
@@ -214,11 +205,11 @@ class CachetteBase<K, V extends Object, U extends Object> {
     policy ??= evictionPolicy;
     int toEvict = length - sizeLimit;
     if (toEvict < 1) {
-      return Result.ok(0);
+      return .ok(0);
     }
 
-    if (policy == EvictionPolicy.dontEvict) {
-      return Result.error(CacheFullError());
+    if (policy == .dontEvict) {
+      return .error(const CacheFullError());
     }
 
     List<K> keys = gather(policy, toEvict);
@@ -232,10 +223,10 @@ class CachetteBase<K, V extends Object, U extends Object> {
     for (K k in keys) {
       final res = _evict(k, callOnEvict: callOnEvict);
       if (!res.ok) {
-        return Result.error(res.error!);
+        return .error(res.error!);
       }
     }
-    return Result.ok(keys.length);
+    return .ok(keys.length);
   }
 
   Result<CacheEntry<K, V, U>, CachetteError> _evict(
@@ -243,7 +234,7 @@ class CachetteBase<K, V extends Object, U extends Object> {
     bool callOnEvict = true,
   }) {
     if (!_items.containsKey(key)) {
-      return Result.error(NotFoundError(key));
+      return .error(NotFoundError(key));
     }
     final entry = CacheEntry.build(_items[key]!, _registry[key]!);
     if (callOnEvict) {
@@ -252,20 +243,20 @@ class CachetteBase<K, V extends Object, U extends Object> {
     }
     _items.remove(key);
     _registry.remove(key);
-    return Result.ok(entry);
+    return .ok(entry);
   }
 
   bool _entryEvictable(EntryInfo entry) =>
       !entry.users.any((u) => unevictableUsers.contains(u));
 
   late final Map<EvictionPolicy, GatherFunction<K>> _gatherers = {
-    EvictionPolicy.fifo: _gatherFirst,
-    EvictionPolicy.lifo: _gatherLast,
-    EvictionPolicy.random: _gatherRandom,
-    EvictionPolicy.leastRecentlyUsed: _gatherLru,
-    EvictionPolicy.mostRecentlyUsed: _gatherMru,
-    EvictionPolicy.leastFrequentlyUsed: _gatherLfu,
-    EvictionPolicy.mostFrequentlyUsed: _gatherMfu,
+    .fifo: _gatherFirst,
+    .lifo: _gatherLast,
+    .random: _gatherRandom,
+    .leastRecentlyUsed: _gatherLru,
+    .mostRecentlyUsed: _gatherMru,
+    .leastFrequentlyUsed: _gatherLfu,
+    .mostFrequentlyUsed: _gatherMfu,
   };
 
   /// Retries up to [num] items to be evicted according to [policy].

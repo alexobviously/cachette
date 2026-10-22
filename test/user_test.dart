@@ -8,27 +8,27 @@ void main() {
   group('User Tests', () {
     test('Basic users', () {
       final cache = UserCachette<int, String, _TestUser>(5);
-      cache.add(0, '0', user: _TestUser.foo);
-      cache.add(0, '0', user: _TestUser.bar);
-      cache.addUser(0, _TestUser.baz);
+      cache.add(0, '0', user: .foo);
+      cache.add(0, '0', user: .bar);
+      cache.addUser(0, .baz);
       expect(
         cache.getUsers(0).unwrap(),
         {_TestUser.foo, _TestUser.bar, _TestUser.baz},
       );
-      cache.removeUsers(0, {_TestUser.foo, _TestUser.bar});
+      cache.removeUsers(0, {.foo, .bar});
       expect(cache.getUsers(0).unwrap(), {_TestUser.baz});
-      cache.removeUser(0, _TestUser.baz);
+      cache.removeUser(0, .baz);
       expect(cache.get(0).error, isA<NotFoundError>());
     });
 
     test('Unused eviction & unevictable users', () {
       final cache = UserCachette<int, String, _TestUser>(
         5,
-        unevictableUsers: {_TestUser.baz},
-        evictionPolicy: EvictionPolicy.fifo,
+        unevictableUsers: {.baz},
+        evictionPolicy: .fifo,
       );
-      cache.add(0, '0', users: {_TestUser.foo, _TestUser.bar});
-      cache.add(1, '1', users: {_TestUser.foo, _TestUser.bar, _TestUser.baz});
+      cache.add(0, '0', users: {.foo, .bar});
+      cache.add(1, '1', users: {.foo, .bar, .baz});
       for (final i in List.generate(5, (i) => i + 2)) {
         cache.add(i, i.toString());
       }

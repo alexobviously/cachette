@@ -8,7 +8,7 @@ void main() {
       List<int> evictedKeys = [];
       final cache = Cachette<int, String>(
         3,
-        evictionPolicy: EvictionPolicy.fifo,
+        evictionPolicy: .fifo,
         onEvict: (e) => evictedKeys.add(e.key),
       );
       for (int i = 0; i < 5; i++) {
@@ -18,7 +18,7 @@ void main() {
     });
   });
   test('Stream', () {
-    final cache = Cachette<int, String>(3, evictionPolicy: EvictionPolicy.fifo);
+    final cache = Cachette<int, String>(3, evictionPolicy: .fifo);
     expectLater(cache.evictionStream.map((e) => e.key), emitsInOrder([0, 1]));
     for (int i = 0; i < 5; i++) {
       cache.add(i, i.toString());
