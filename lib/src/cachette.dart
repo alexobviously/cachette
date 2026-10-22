@@ -97,7 +97,8 @@ class CachetteBase<K, V extends Object, U extends Object>(
   }) {
     if (isClosed) return .error(const CacheClosedError());
     conflictPolicy ??= this.conflictPolicy;
-    if (_items.containsKey(key)) {
+    final isNewKey = !_items.containsKey(key);
+    if (!isNewKey) {
       switch (conflictPolicy) {
         case .overwrite:
         case .users:
@@ -107,11 +108,11 @@ class CachetteBase<K, V extends Object, U extends Object>(
         case .exception:
           throw CachetteException('Conflicting key: $key');
       }
-    }
-
-    final cleanRes = clean(sizeLimit: size - 1);
-    if (!cleanRes.ok) {
-      return .error(cleanRes.error!);
+    } else {
+      final cleanRes = clean(sizeLimit: size - 1);
+      if (!cleanRes.ok) {
+        return .error(cleanRes.error!);
+      }
     }
 
     if (user != null) {
