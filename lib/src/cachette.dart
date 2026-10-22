@@ -48,7 +48,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
 
   /// All items in the cache, in `CacheEntry` form.
   Iterable<CacheEntry<K, V, U>> get entries =>
-      _registry.values.map((e) => CacheEntry.build(_items[e.key]!, e));
+      _registry.values.map((e) => .build(_items[e.key]!, e));
 
   final StreamController<CacheEntry<K, V, U>> _evictionStreamController =
       .broadcast();
@@ -113,10 +113,13 @@ class CachetteBase<K, V extends Object, U extends Object>(
     }
 
     _registry[key] = switch ((conflictPolicy, users)) {
-      (.users, null) => EntryInfo.create(key),
+      // This `update()` prevents wiping users when adding a 'null' user
+      // to a cache with users. This seems like weird user behaviour, but
+      // it's best to guard against it.
+      (.users, null) => _registry[key]?.update() ?? .create(key),
       (.users, Set<U> users) =>
-        _registry[key]?.addUsers(users) ?? EntryInfo.create(key, users),
-      _ => EntryInfo.create(key, users),
+        _registry[key]?.addUsers(users) ?? .create(key, users),
+      _ => .create(key, users),
     };
 
     _items[key] = value;
@@ -137,7 +140,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
     }
     final info = _registry[key]!.addUsers(users);
     _registry[key] = info;
-    return .ok(CacheEntry.build(_items[key]!, info));
+    return .ok(.build(_items[key]!, info));
   }
 
   /// Removes a single [user] from thee cache item with [key].
@@ -172,7 +175,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
       return remove(key, callOnEvict: callOnEvict);
     }
     _registry[key] = info;
-    return .ok(CacheEntry.build(_items[key]!, info));
+    return .ok(.build(_items[key]!, info));
   }
 
   /// Removes an item with [key] from the cache.

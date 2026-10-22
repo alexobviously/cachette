@@ -21,6 +21,18 @@ void main() {
       expect(cache.get(0).error, isA<NotFoundError>());
     });
 
+    test('Updating value preserves existing users when no user argument is passed', () {
+      final cache = UserCachette<int, String, _TestUser>(5);
+      cache.add(0, 'initial', user: .foo);
+      expect(cache.getUsers(0).unwrap(), {_TestUser.foo});
+
+      // Update value without passing a user
+      cache.add(0, 'updated');
+
+      // Expected: .foo is still registered. Actual: users wiped to empty {}!
+      expect(cache.getUsers(0).unwrap(), {_TestUser.foo});
+    });
+
     test('Unused eviction & unevictable users', () {
       final cache = UserCachette<int, String, _TestUser>(
         5,
