@@ -57,11 +57,15 @@ class CachetteBase<K, V extends Object, U extends Object>(
   Stream<CacheEntry<K, V, U>> get evictionStream =>
       _evictionStreamController.stream;
 
+  /// Whether the Cachette is closed.
+  bool get isClosed => _evictionStreamController.isClosed;
+
   V? operator [](K key) => get(key).object?.value;
   void operator []=(K key, V value) => add(key, value);
 
   /// Gets a cache item with [key].
   Result<CacheEntry<K, V, U>, CachetteError> get(K key) {
+    if (isClosed) return .error(const CacheClosedError());
     if (!_items.containsKey(key)) {
       return .error(NotFoundError(key));
     }
@@ -90,6 +94,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
     U? user,
     Set<U>? users,
   }) {
+    if (isClosed) return .error(const CacheClosedError());
     conflictPolicy ??= this.conflictPolicy;
     if (_items.containsKey(key)) {
       switch (conflictPolicy) {
@@ -135,6 +140,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
   /// Adds [users] to the cache item with [key].
   /// Only works if the cache item already exists.
   Result<CacheEntry<K, V, U>, CachetteError> addUsers(K key, Set<U> users) {
+    if (isClosed) return .error(const CacheClosedError());
     if (!_items.containsKey(key)) {
       return .error(NotFoundError(key));
     }
@@ -167,6 +173,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
     bool removeIfUnused = true,
     bool callOnEvict = true,
   }) {
+    if (isClosed) return .error(const CacheClosedError());
     if (!_items.containsKey(key)) {
       return .error(NotFoundError(key));
     }
@@ -183,6 +190,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
     K key, {
     bool callOnEvict = false,
   }) {
+    if (isClosed) return .error(const CacheClosedError());
     if (!_items.containsKey(key)) {
       return .error(NotFoundError(key));
     }
@@ -195,8 +203,20 @@ class CachetteBase<K, V extends Object, U extends Object>(
 
   /// Removes all items from the cache.
   void clear() {
+    if (isClosed) return;
     _items.clear();
     _registry.clear();
+  }
+
+  /// Closes the [Cachette] and its resources (eviction stream controller).
+  ///
+  /// If [clear] is true, also empties the cache.
+  Future<void> close({bool clear = true}) async {
+    if (clear) {
+      _items.clear();
+      _registry.clear();
+    }
+    await _evictionStreamController.close();
   }
 
   /// Cleans the cache, i.e. removes enough cache items to meet [sizeLimit].
@@ -204,6 +224,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
   /// is the most likely use case.
   /// [policy] can be used to override the Cachette's eviction policy.
   Result<int, CachetteError> clean({int? sizeLimit, EvictionPolicy? policy}) {
+    if (isClosed) return .error(const CacheClosedError());
     sizeLimit ??= size;
     policy ??= evictionPolicy;
     int toEvict = length - sizeLimit;
@@ -242,7 +263,9 @@ class CachetteBase<K, V extends Object, U extends Object>(
     final entry = CacheEntry.build(_items[key]!, _registry[key]!);
     if (callOnEvict) {
       onEvict?.call(entry);
-      _evictionStreamController.add(entry);
+      if (!_evictionStreamController.isClosed) {
+        _evictionStreamController.add(entry);
+      }
     }
     _items.remove(key);
     _registry.remove(key);

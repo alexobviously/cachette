@@ -24,4 +24,26 @@ void main() {
       cache.add(i, i.toString());
     }
   });
+
+  test('close closes stream and supports clear', () async {
+    final cache = Cachette<int, String>(3);
+    cache.add(1, 'one');
+    expect(cache.isClosed, isFalse);
+
+    await cache.close();
+    expect(cache.isClosed, isTrue);
+    expect(cache.length, 0);
+  });
+
+  test('Operations on closed cache return CacheClosedError', () async {
+    final cache = Cachette<int, String>(3);
+    cache.add(1, 'one');
+    await cache.close(clear: false);
+
+    expect(cache.get(1).error, isA<CacheClosedError>());
+    expect(cache[1], isNull);
+    expect(cache.add(2, 'two').error, isA<CacheClosedError>());
+    expect(cache.remove(1).error, isA<CacheClosedError>());
+    expect(cache.clean().error, isA<CacheClosedError>());
+  });
 }

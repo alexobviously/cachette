@@ -24,6 +24,18 @@ class const KeyConflictError<K>(final K key) extends CachetteError {
   int get hashCode => key.hashCode;
 }
 
+/// Occurs if an operation is attempted on a closed cache.
+class const CacheClosedError() extends CachetteError {
+  @override
+  String toString() => 'Cache Closed';
+
+  @override
+  bool operator ==(Object other) => other is CacheClosedError;
+
+  @override
+  int get hashCode => 0;
+}
+
 /// Occurs if the cache is full and the eviction policy is dontEvict.
 class const CacheFullError() extends CachetteError {
   @override

@@ -1,3 +1,8 @@
+### 1.1.0
+- Bump Dart SDK (3.13.4) and dependencies.
+- Code modernisation and style improvements.
+- Added lifecycle to `Cachette`, i.e. you can now call `close()` on it. The main reason for this is to dispose a stream controller.
+
 ### 1.0.0
 - Upgraded to Dart 3; relevant package updates.
 - Switched to the `Result` class from [`elegant`](https://pub.dev/packages/elegant), instead of duplicating it here.
