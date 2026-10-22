@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cachette/cachette.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
@@ -48,7 +46,7 @@ void main() {
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
       }
-      sleep(Duration(milliseconds: 100));
+
       cache.get(0);
       cache.get(3);
       cache[5] = 'five';
@@ -103,6 +101,27 @@ void main() {
       cache[1] = 'one';
       cache[2] = 'two';
       expect(cache.add(3, 'three').error, isA<CacheFullError>());
+    });
+
+    test('Rapid consecutive access deterministic MRU', () {
+      for (int run = 0; run < 200; run++) {
+        final cache = Cachette<int, String>(
+          3,
+          evictionPolicy: .mostRecentlyUsed,
+        );
+        cache.add(1, '1');
+        cache.add(2, '2');
+        cache.add(3, '3');
+        cache.get(1);
+        cache.get(2);
+        cache.add(4, '4');
+        expect(
+          cache.containsKey(2),
+          isFalse,
+          reason:
+              'Run $run: 2 was accessed after 1, so 2 must be evicted under MRU',
+        );
+      }
     });
   });
 }

@@ -14,14 +14,18 @@ class const EntryInfo<K, U extends Object>({
 
   /// Users that are currently registered to this entry.
   final Set<U> users = const {},
+
+  /// Logical timestamp indicating when the entry was last accessed or added.
+  final int lastTick = 0,
 }) {
-  factory create(K key, [Set<U>? users]) {
+  factory create(K key, [Set<U>? users, int tick = 0]) {
     final DateTime now = .now();
     return EntryInfo(
       key: key,
       added: now,
       lastAccess: now,
       users: {...?users},
+      lastTick: tick,
     );
   }
 
@@ -32,22 +36,28 @@ class const EntryInfo<K, U extends Object>({
     DateTime? lastAccess,
     int? numUses,
     Set<U>? users,
+    int? lastTick,
   }) => EntryInfo(
     key: key ?? this.key,
     added: added ?? this.added,
     lastAccess: lastAccess ?? this.lastAccess,
     numUses: numUses ?? this.numUses,
     users: users ?? this.users,
+    lastTick: lastTick ?? this.lastTick,
   );
 
-  /// Sets `lastAccess` to now and increments `numUses`.
-  EntryInfo<K, U> update() =>
-      copyWith(lastAccess: .now(), numUses: numUses + 1);
+  /// Sets `lastAccess` to now, increments `numUses`, and optionally updates `lastTick`.
+  EntryInfo<K, U> update([int? tick]) => copyWith(
+    lastAccess: .now(),
+    numUses: numUses + 1,
+    lastTick: tick,
+  );
 
-  /// Adds [users] to the entry's user list.
-  EntryInfo<K, U> addUsers(Set<U> users) => copyWith(
+  /// Adds [users] to the entry's user list and optionally updates `lastTick`.
+  EntryInfo<K, U> addUsers(Set<U> users, [int? tick]) => copyWith(
     users: {...this.users, ...users},
     lastAccess: .now(),
+    lastTick: tick,
   );
 
   /// Removes [users] from the entry's user list.

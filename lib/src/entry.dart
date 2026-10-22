@@ -9,6 +9,7 @@ class const CacheEntry<K, V, U extends Object>({
   required super.lastAccess,
   super.numUses,
   super.users,
+  super.lastTick,
 }) extends EntryInfo<K, U> {
   factory build(V value, EntryInfo<K, U> info) => CacheEntry(
     value: value,
@@ -17,6 +18,7 @@ class const CacheEntry<K, V, U extends Object>({
     lastAccess: info.lastAccess,
     numUses: info.numUses,
     users: info.users,
+    lastTick: info.lastTick,
   );
 
   @override

@@ -2,6 +2,7 @@
 - Bump Dart SDK (3.13.4) and dependencies.
 - Code modernisation and style improvements.
 - Added lifecycle to `Cachette`, i.e. you can now call `close()` on it. The main reason for this is to dispose a stream controller.
+- Use monotonic tick counter for deterministic LRU and MRU eviction, instead of `DateTime`. This fixes a potential ordering problem when adding items very quickly with an LRU/MRU policy.
 
 ### 1.0.0
 - Upgraded to Dart 3; relevant package updates.

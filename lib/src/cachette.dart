@@ -36,6 +36,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
 }) {
   final Map<K, V> _items = {};
   final Map<K, EntryInfo<K, U>> _registry = {};
+  int _tick = 0;
 
   /// The current number of items in the cache.
   int get length => _items.length;
@@ -70,7 +71,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
       return .error(NotFoundError(key));
     }
     final item = _items[key]!;
-    final info = _registry[key]!.update();
+    final info = _registry[key]!.update(++_tick);
     _registry[key] = info;
     return .ok(CacheEntry.build(item, info));
   }
@@ -117,14 +118,16 @@ class CachetteBase<K, V extends Object, U extends Object>(
       users = {...?users, user};
     }
 
+    final tick = ++_tick;
     _registry[key] = switch ((conflictPolicy, users)) {
       // This `update()` prevents wiping users when adding a 'null' user
       // to a cache with users. This seems like weird user behaviour, but
       // it's best to guard against it.
-      (.users, null) => _registry[key]?.update() ?? .create(key),
+      (.users, null) =>
+        _registry[key]?.update(tick) ?? .create(key, null, tick),
       (.users, Set<U> users) =>
-        _registry[key]?.addUsers(users) ?? .create(key, users),
-      _ => .create(key, users),
+        _registry[key]?.addUsers(users, tick) ?? .create(key, users, tick),
+      _ => .create(key, users, tick),
     };
 
     _items[key] = value;
@@ -144,7 +147,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
     if (!_items.containsKey(key)) {
       return .error(NotFoundError(key));
     }
-    final info = _registry[key]!.addUsers(users);
+    final info = _registry[key]!.addUsers(users, ++_tick);
     _registry[key] = info;
     return .ok(.build(_items[key]!, info));
   }
@@ -206,6 +209,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
     if (isClosed) return;
     _items.clear();
     _registry.clear();
+    _tick = 0;
   }
 
   /// Closes the [Cachette] and its resources (eviction stream controller).
@@ -215,6 +219,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
     if (clear) {
       _items.clear();
       _registry.clear();
+      _tick = 0;
     }
     await _evictionStreamController.close();
   }
@@ -309,14 +314,14 @@ class CachetteBase<K, V extends Object, U extends Object>(
 
   List<K> _gatherLru(int num) =>
       (_registry.values.where(_entryEvictable).toList()
-            ..sort((a, b) => a.lastAccess.compareTo(b.lastAccess)))
+            ..sort((a, b) => a.lastTick.compareTo(b.lastTick)))
           .map((e) => e.key)
           .take(num)
           .toList();
 
   List<K> _gatherMru(int num) =>
       (_registry.values.where(_entryEvictable).toList()
-            ..sort((a, b) => b.lastAccess.compareTo(a.lastAccess)))
+            ..sort((a, b) => b.lastTick.compareTo(a.lastTick)))
           .map((e) => e.key)
           .take(num)
           .toList();
