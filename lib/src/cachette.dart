@@ -303,7 +303,7 @@ class CachetteBase<K, V extends Object, U extends Object>(
           .toList();
 
   List<K> _gatherMfu(int num) =>
-      (_registry.values.where(_entryEvictable).where(_entryEvictable).toList()
+      (_registry.values.where(_entryEvictable).toList()
             ..sort((a, b) => b.numUses.compareTo(a.numUses)))
           .map((e) => e.key)
           .take(num)
