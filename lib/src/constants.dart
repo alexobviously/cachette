@@ -8,7 +8,7 @@ enum EvictionPolicy {
   leastRecentlyUsed,
   mostRecentlyUsed,
   leastFrequentlyUsed,
-  mostFrequentlyUsed;
+  mostFrequentlyUsed,
 }
 
 /// Policies that determine what happens if a key conflict happens.
@@ -17,12 +17,7 @@ enum EvictionPolicy {
 /// `exception`: An exception is thrown.
 /// `users`: The same as `overwrite`, but the users list for the entry will be
 /// modified if appropriate.
-enum ConflictPolicy {
-  overwrite,
-  error,
-  exception,
-  users;
-}
+enum ConflictPolicy { overwrite, error, exception, users }
 
 /// Returns [num] keys.
 typedef GatherFunction<K> = List<K> Function(int num);

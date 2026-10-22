@@ -157,13 +157,12 @@ class CachetteBase<K, V extends Object, U extends Object> {
     U user, {
     bool removeIfUnused = true,
     bool callOnEvict = true,
-  }) =>
-      removeUsers(
-        key,
-        {user},
-        removeIfUnused: removeIfUnused,
-        callOnEvict: callOnEvict,
-      );
+  }) => removeUsers(
+    key,
+    {user},
+    removeIfUnused: removeIfUnused,
+    callOnEvict: callOnEvict,
+  );
 
   /// Removes [users] from thee cache item with [key].
   /// If [removeIfUnused] and the item has no users after removing [users],

@@ -7,16 +7,20 @@ import 'package:test/scaffolding.dart';
 void main() {
   group('Eviction Policy Tests', () {
     test('First In', () {
-      final cache =
-          Cachette<int, String>(3, evictionPolicy: EvictionPolicy.fifo);
+      final cache = Cachette<int, String>(
+        3,
+        evictionPolicy: EvictionPolicy.fifo,
+      );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
       }
       expect(cache.keys, [2, 3, 4]);
     });
     test('Last In', () {
-      final cache =
-          Cachette<int, String>(3, evictionPolicy: EvictionPolicy.lifo);
+      final cache = Cachette<int, String>(
+        3,
+        evictionPolicy: EvictionPolicy.lifo,
+      );
       for (int i = 0; i < 5; i++) {
         cache.add(i, i.toString());
       }
@@ -91,8 +95,10 @@ void main() {
       expect(cache.keys, [2, 3, 4, 5, 7]);
     });
     test('Don\'t Evict', () {
-      final cache =
-          Cachette<int, String>(3, evictionPolicy: EvictionPolicy.dontEvict);
+      final cache = Cachette<int, String>(
+        3,
+        evictionPolicy: EvictionPolicy.dontEvict,
+      );
       cache[0] = 'zero';
       cache[1] = 'one';
       cache[2] = 'two';

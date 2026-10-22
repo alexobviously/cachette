@@ -15,15 +15,16 @@ class CacheEntry<K, V, U extends Object> extends EntryInfo<K, U> {
   });
 
   factory CacheEntry.build(V value, EntryInfo<K, U> info) => CacheEntry(
-        value: value,
-        key: info.key,
-        added: info.added,
-        lastAccess: info.lastAccess,
-        numUses: info.numUses,
-        users: info.users,
-      );
+    value: value,
+    key: info.key,
+    added: info.added,
+    lastAccess: info.lastAccess,
+    numUses: info.numUses,
+    users: info.users,
+  );
 
   @override
-  String toString() => 'CacheEntry($key, $value, uses: $numUses, '
+  String toString() =>
+      'CacheEntry($key, $value, uses: $numUses, '
       'lastAccess: $lastAccess, added: $added, users: $users)';
 }

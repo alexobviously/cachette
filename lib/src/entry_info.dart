@@ -40,14 +40,13 @@ class EntryInfo<K, U extends Object> {
     DateTime? lastAccess,
     int? numUses,
     Set<U>? users,
-  }) =>
-      EntryInfo(
-        key: key ?? this.key,
-        added: added ?? this.added,
-        lastAccess: lastAccess ?? this.lastAccess,
-        numUses: numUses ?? this.numUses,
-        users: users ?? this.users,
-      );
+  }) => EntryInfo(
+    key: key ?? this.key,
+    added: added ?? this.added,
+    lastAccess: lastAccess ?? this.lastAccess,
+    numUses: numUses ?? this.numUses,
+    users: users ?? this.users,
+  );
 
   /// Sets `lastAccess` to now and increments `numUses`.
   EntryInfo<K, U> update() =>
@@ -55,12 +54,12 @@ class EntryInfo<K, U extends Object> {
 
   /// Adds [users] to the entry's user list.
   EntryInfo<K, U> addUsers(Set<U> users) => copyWith(
-        users: {...this.users, ...users},
-        lastAccess: DateTime.now(),
-      );
+    users: {...this.users, ...users},
+    lastAccess: DateTime.now(),
+  );
 
   /// Removes [users] from the entry's user list.
   EntryInfo<K, U> removeUsers(Set<U> users) => copyWith(
-        users: {...this.users}..removeAll(users),
-      );
+    users: {...this.users}..removeAll(users),
+  );
 }

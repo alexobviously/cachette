@@ -2,11 +2,7 @@ import 'package:cachette/cachette.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-enum _TestUser {
-  foo,
-  bar,
-  baz;
-}
+enum _TestUser { foo, bar, baz }
 
 void main() {
   group('User Tests', () {
